@@ -25,7 +25,7 @@ func Employees() (employees []Employee) {
 	}
 	for rows.Next() {
 		employee := Employee{}
-		err = rows.Scan(&employee.ID, &employee.Name, &employee.Position)
+		err = rows.Scan(&employee.Id, &employee.Name, &employee.Position)
 		if err != nil {
 			panic(err)
 		}
@@ -49,7 +49,7 @@ func (employee *Employee) Create() (err error) {
 	// return early if the employee already has an Id other than 0
 	// In this case, we are assuming the non-0 id means it has been
 	// created because PostgreSQL SERIAL starts at 1
-	if employee.ID != 0 {
+	if employee.Id != 0 {
 		return
 	}
 
@@ -58,7 +58,7 @@ func (employee *Employee) Create() (err error) {
 		panic(err)
 	}
 	defer createEmployeeStatement.Close()
-	err = createEmployeeStatement.QueryRow(employee.Name, employee.Position).Scan(&employee.ID)
+	err = createEmployeeStatement.QueryRow(employee.Name, employee.Position).Scan(&employee.Id)
 	if err != nil {
 		panic(err)
 	}
@@ -67,12 +67,32 @@ func (employee *Employee) Create() (err error) {
 
 // Update will update the list of employee and saves this struct to the database.
 func (employee *Employee) Update() (err error) {
-	_, err = db.Exec("update employees set name = $2, positon = $3 where id = $1", employee.ID, employee.Name, employee.Position)
+	_, err = db.Exec("update employees set name = $2, positon = $3 where id = $1", employee.Id, employee.Name, employee.Position)
 	return
 }
 
 // Delete will delete an employee based of the id that is given.
 func (employee *Employee) Delete() (err error) {
-	_, err = db.Exec("delete from employees where id = $1", employee.ID)
+	_, err = db.Exec("delete from employees where id = $1", employee.Id)
+	return
+}
+
+// CreateDelivery saves the delivery describes this struct to the database.
+// If the delivery does not have a vaild Address, no work is done because we
+// assum the valid Adress was provided by the database on some past save.
+func (delivery *Delivery) CreateDelivery() (err error) {
+	// returns early if the adress is empty
+	if len(delivery.Adress) > 0 {
+		panic(err)
+	}
+	createDeliveryStatement, err := db.Prepare("INSERT INTO delivers (address, tip) VALUES ($1, $2) RETURNING id")
+	if err != nil {
+		panic(err)
+	}
+	defer createDeliveryStatement.Close()
+	err = createDeliveryStatement.QueryRow(delivery.Adress, delivery.Tip).Scan(delivery.Id)
+	if err != nil {
+		panic(err)
+	}
 	return
 }
