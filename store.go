@@ -121,7 +121,3 @@ func (delivery *Delivery) Create() (err error) {
 	}
 	return
 }
-
-func (clockIn *Clockin) Create() (err error) {
-	createClockInStatement, err := db.Prepare("INSERT INTO clockIns (")
-}
