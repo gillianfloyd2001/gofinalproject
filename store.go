@@ -19,7 +19,7 @@ func init() {
 
 // Employees gets all the employees out.
 func Employees() (employees []Employee) {
-	rows, err := db.Query("select id, name, position from employees")
+	rows, err := db.Query("SELECT id, name, position from employees")
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +38,7 @@ func Employees() (employees []Employee) {
 // GetEmployee will get an employee out by id.
 func GetEmployee(id int) (employee Employee, err error) {
 	employee = Employee{}
-	err = db.QueryRow("select * from Employees where id = $1", id).Scan(&employee.Name, &employee.Position)
+	err = db.QueryRow("SELECT * from Employees where id = $1", id).Scan(&employee.Name, &employee.Position)
 	return
 }
 
@@ -67,7 +67,7 @@ func (employee *Employee) Create() (err error) {
 
 // Update will update the list of employee and saves this struct to the database.
 func (employee *Employee) Update() (err error) {
-	_, err = db.Exec("update employees set name = $2, positon = $3 where id = $1", employee.Id, employee.Name, employee.Position)
+	_, err = db.Exec("update employees set name = $2, position = $3 where id = $1", employee.Id, employee.Name, employee.Position)
 	return
 }
 
@@ -77,22 +77,51 @@ func (employee *Employee) Delete() (err error) {
 	return
 }
 
-// CreateDelivery saves the delivery describes this struct to the database.
-// If the delivery does not have a vaild Address, no work is done because we
-// assum the valid Adress was provided by the database on some past save.
-func (delivery *Delivery) CreateDelivery() (err error) {
-	// returns early if the adress is empty
-	if len(delivery.Adress) > 0 {
+// Deliveries get all the deliveries.
+func Deliveries() (deliveries []Delivery) {
+	rows, err := db.Query("SELECT id, address, tip from deliveries")
+	if err != nil {
 		panic(err)
 	}
-	createDeliveryStatement, err := db.Prepare("INSERT INTO delivers (address, tip) VALUES ($1, $2) RETURNING id")
+	for rows.Next() {
+		delivery := Delivery{}
+		err = rows.Scan(&delivery.Id, &delivery.Address, &delivery.Tip)
+		if err != nil {
+			panic(err)
+		}
+		deliveries = append(deliveries, delivery)
+	}
+	rows.Close()
+	return
+}
+
+// GetDelivery gets delivery by an id.
+func GetDelivery(id int) (delivery Delivery, err error) {
+	delivery = Delivery{}
+	err = db.QueryRow("SELECT id, address, tip FROM deliveries WHERE id = $1", id).Scan(&delivery.Id, &delivery.Address, &delivery.Tip)
+	return
+}
+
+// Create saves the delivery describes this struct to the database.
+// If the delivery does not have a vaild Address, no work is done because we
+// assume the valid Address was provided by the database on some past save.
+func (delivery *Delivery) Create() (err error) {
+	// returns early if the address is empty
+	if len(delivery.Address) == 0 {
+		panic("Delivery created without an address")
+	}
+	createDeliveryStatement, err := db.Prepare("INSERT INTO deliveries (address, tip) VALUES ($1, $2) RETURNING id")
 	if err != nil {
 		panic(err)
 	}
 	defer createDeliveryStatement.Close()
-	err = createDeliveryStatement.QueryRow(delivery.Adress, delivery.Tip).Scan(delivery.Id)
+	err = createDeliveryStatement.QueryRow(&delivery.Address, &delivery.Tip).Scan(&delivery.Id)
 	if err != nil {
 		panic(err)
 	}
 	return
+}
+
+func (clockIn *Clockin) Create() (err error) {
+	createClockInStatement, err := db.Prepare("INSERT INTO clockIns (")
 }
