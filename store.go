@@ -38,7 +38,7 @@ func Employees() (employees []Employee) {
 // GetEmployee will get an employee out by id.
 func GetEmployee(id int) (employee Employee, err error) {
 	employee = Employee{}
-	err = db.QueryRow("SELECT * from Employees where id = $1", id).Scan(&employee.Name, &employee.Position)
+	err = db.QueryRow("SELECT * from employees where id = $1", id).Scan(&employee.Name, &employee.Position)
 	return
 }
 
@@ -67,25 +67,25 @@ func (employee *Employee) Create() (err error) {
 
 // Update will update the list of employee and saves this struct to the database.
 func (employee *Employee) Update() (err error) {
-	_, err = db.Exec("update employees set name = $2, position = $3 where id = $1", employee.Id, employee.Name, employee.Position)
+	_, err = db.Exec("UPDATE employees set name = $2, position = $3 where id = $1", employee.Id, employee.Name, employee.Position)
 	return
 }
 
 // Delete will delete an employee based of the id that is given.
 func (employee *Employee) Delete() (err error) {
-	_, err = db.Exec("delete from employees where id = $1", employee.Id)
+	_, err = db.Exec("DELETE from employees where id = $1", employee.Id)
 	return
 }
 
-// Deliveries get all the deliveries.
+// Deliveries gets all the deliveries at that was created.
 func Deliveries() (deliveries []Delivery) {
-	rows, err := db.Query("SELECT id, address, tip from deliveries")
+	rows, err := db.Query("SELECT * FROM deliveries")
 	if err != nil {
 		panic(err)
 	}
 	for rows.Next() {
 		delivery := Delivery{}
-		err = rows.Scan(&delivery.Id, &delivery.Address, &delivery.Tip)
+		err = rows.Scan(&delivery.Id, &delivery.Name, &delivery.PhoneNumber, &delivery.Address, &delivery.Tip)
 		if err != nil {
 			panic(err)
 		}
@@ -95,29 +95,43 @@ func Deliveries() (deliveries []Delivery) {
 	return
 }
 
-// GetDelivery gets delivery by an id.
-func GetDelivery(id int) (delivery Delivery, err error) {
-	delivery = Delivery{}
-	err = db.QueryRow("SELECT id, address, tip FROM deliveries WHERE id = $1", id).Scan(&delivery.Id, &delivery.Address, &delivery.Tip)
+// GetDelivery gets a delivery out by the id.
+func GetDelivery(id int) (deliveries Delivery, err error) {
+	deliveries = Delivery{}
+	err = db.QueryRow("SELECT * FROM deliveries WHERE id = $1", id).Scan(&deliveries.Name, &deliveries.PhoneNumber, &deliveries.Address, &deliveries.Tip)
 	return
 }
 
-// Create saves the delivery describes this struct to the database.
-// If the delivery does not have a vaild Address, no work is done because we
-// assume the valid Address was provided by the database on some past save.
+// Create saves the delivery described by this struct to the database.
+// If the delivery has a valid Id (not 0), no work is done because we
+// assume the valid Id was provided by the database on some past save
 func (delivery *Delivery) Create() (err error) {
-	// returns early if the address is empty
-	if len(delivery.Address) == 0 {
-		panic("Delivery created without an address")
+	// return early if the addres is length is less than 0.
+	// In this case, we are assuming the non-0 id means it has been
+	// created because PostgreSQL SERIAL starts at 1
+	if len(delivery.Address) > 0 {
+		panic(err)
 	}
-	createDeliveryStatement, err := db.Prepare("INSERT INTO deliveries (address, tip) VALUES ($1, $2) RETURNING id")
+	createDeliveryStatement, err := db.Prepare("INSERT INTO deliveries (name, phoneNumber, address, tip) VALUES ($1, $2, $3, $4) RETURNING id")
 	if err != nil {
 		panic(err)
 	}
 	defer createDeliveryStatement.Close()
-	err = createDeliveryStatement.QueryRow(&delivery.Address, &delivery.Tip).Scan(&delivery.Id)
+	err = createDeliveryStatement.QueryRow(delivery.Name, delivery.PhoneNumber, delivery.Address, delivery.Tip).Scan(delivery.Id)
 	if err != nil {
 		panic(err)
 	}
+	return
+}
+
+// Update will up the delivery based off the delivery's id.
+func (delivery *Delivery) Update() (err error) {
+	_, err = db.Exec("UPDATE deliveries SET name = $2, phoneNumber = $3, address = $4, tip = $5", delivery.Id, delivery.Name, delivery.PhoneNumber, delivery.Address, delivery.Tip)
+	return
+}
+
+// Delete will delete a delivery based off the delivery's id.
+func (delivery *Delivery) Delete() (err error) {
+	_, err = db.Exec("DELETE from deliveries where id = $1", delivery.Id)
 	return
 }
