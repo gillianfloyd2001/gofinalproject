@@ -125,13 +125,13 @@ func (delivery *Delivery) Create() (err error) {
 }
 
 // Update will up the delivery based off the delivery's id.
-func (delivery *Delivery) Update() (err error) {
-	_, err = db.Exec("UPDATE deliveries SET name = $2, phoneNumber = $3, address = $4, tip = $5", delivery.Id, delivery.Name, delivery.PhoneNumber, delivery.Address, delivery.Tip)
+func (delivery *Delivery) Update(id int) (err error) {
+	_, err = db.Exec("UPDATE deliveries SET name = $2, phoneNumber = $3, address = $4, tip = $5 WHERE id = $1", delivery.Id, delivery.Name, delivery.PhoneNumber, delivery.Address, delivery.Tip)
 	return
 }
 
 // Delete will delete a delivery based off the delivery's id.
-func (delivery *Delivery) Delete() (err error) {
+func (delivery *Delivery) Delete(id int) (err error) {
 	_, err = db.Exec("DELETE from deliveries where id = $1", delivery.Id)
 	return
 }

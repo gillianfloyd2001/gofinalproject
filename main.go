@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -35,6 +36,7 @@ func listEmployees(c echo.Context) (err error) {
 }
 
 func singleEmployee(c echo.Context) (err error) {
+	id, err := strconv.Atoi(c.Param("id"))
 	return c.JSON(http.StatusOK, GetEmployee(id))
 }
 
@@ -46,6 +48,15 @@ func createEmployee(c echo.Context) (err error) {
 	employee.Create()
 	return c.JSON(http.StatusCreated, employee)
 }
+
+// func patchSingleEmployee(c echo.Context) (err error) {
+// 	id, err := strconv.Atoi(c.Param("id"))
+
+// }
+
+// func deleteSingleEmployee(c echo.Context) {
+
+// }
 
 // func createListEmployees(writer http.ResponseWriter, request *http.Request) {
 // 	if request.Method == "GET" {
@@ -68,11 +79,12 @@ func createEmployee(c echo.Context) (err error) {
 // 	}
 // }
 
-func listDeliveries(c echo.Context) {
+func listDeliveries(c echo.Context) (err error) {
 	return c.JSON(http.StatusOK, Deliveries())
 }
 
-func singleDelivery(c echo.Context) {
+func singleDelivery(c echo.Context) (err error) {
+	id, err := strconv.Atoi(c.Param("id"))
 	return c.JSON(http.StatusOK, GetDelivery(id))
 }
 
@@ -83,6 +95,14 @@ func createDelivery(c echo.Context) (err error) {
 	}
 	delivery.Create()
 	return c.JSON(http.StatusCreated, delivery)
+}
+
+func patchSingleDelivery(c echo.Context) (err error) {
+	
+}
+
+func deleteSingleDelivery(c echo.Context) (err error) {
+
 }
 
 func main() {
@@ -98,6 +118,8 @@ func main() {
 	e.GET("/deliveries", listDeliveries)
 	e.GET("/deliveries:id", singleDelivery)
 	e.POST("/deliveries", createDelivery)
+	e.PATCH("/deliveries:id", patchSingleDelivery)
+	e.DELETE("/deliveries:id", deleteSingleDelivery)
 
 	fmt.Println("Listening on 8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
