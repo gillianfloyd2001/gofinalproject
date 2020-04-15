@@ -65,14 +65,14 @@ func (employee *Employee) Create() (err error) {
 	return
 }
 
-// Update will update the list of employee and saves this struct to the database.
-func (employee *Employee) Update() (err error) {
+// UpdateEmployee will update the list of employee and saves this struct to the database.
+func UpdateEmployee(id int) (employee *Employee, err error) {
 	_, err = db.Exec("UPDATE employees set name = $2, position = $3 where id = $1", employee.Id, employee.Name, employee.Position)
 	return
 }
 
-// Delete will delete an employee based of the id that is given.
-func (employee *Employee) Delete() (err error) {
+// DeleteEmployee will delete an employee based of the id that is given.
+func DeleteEmployee(id int) (employee *Employee, err error) {
 	_, err = db.Exec("DELETE from employees where id = $1", employee.Id)
 	return
 }
@@ -124,14 +124,14 @@ func (delivery *Delivery) Create() (err error) {
 	return
 }
 
-// Update will up the delivery based off the delivery's id.
-func (delivery *Delivery) Update(id int) (err error) {
+// UpdateDelivery will up the delivery based off the delivery's id.
+func UpdateDelivery(id int) (delivery *Delivery, err error) {
 	_, err = db.Exec("UPDATE deliveries SET name = $2, phoneNumber = $3, address = $4, tip = $5 WHERE id = $1", delivery.Id, delivery.Name, delivery.PhoneNumber, delivery.Address, delivery.Tip)
 	return
 }
 
-// Delete will delete a delivery based off the delivery's id.
-func (delivery *Delivery) Delete(id int) (err error) {
+// DeleteDelivery will delete a delivery based off the delivery's id.
+func DeleteDelivery(id int) (delivery *Delivery, err error) {
 	_, err = db.Exec("DELETE from deliveries where id = $1", delivery.Id)
 	return
 }

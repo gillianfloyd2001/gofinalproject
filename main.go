@@ -49,14 +49,15 @@ func createEmployee(c echo.Context) (err error) {
 	return c.JSON(http.StatusCreated, employee)
 }
 
-// func patchSingleEmployee(c echo.Context) (err error) {
-// 	id, err := strconv.Atoi(c.Param("id"))
+func patchSingleEmployee(c echo.Context) (err error) {
+	id, err := strconv.Atoi(c.Param("id"))
+	return c.JSON(http.StatusOK, UpdateEmployee(id))
+}
 
-// }
-
-// func deleteSingleEmployee(c echo.Context) {
-
-// }
+func deleteSingleEmployee(c echo.Context) (err error) {
+	id, err := strconv.Atoi(c.Param("id"))
+	return c.JSON(http.StatusOK, DeleteEmployee(id))
+}
 
 // func createListEmployees(writer http.ResponseWriter, request *http.Request) {
 // 	if request.Method == "GET" {
@@ -98,11 +99,13 @@ func createDelivery(c echo.Context) (err error) {
 }
 
 func patchSingleDelivery(c echo.Context) (err error) {
-	
+	id, err := strconv.Atoi(c.Param("id"))
+	return c.JSON(http.StatusOK, UpdateDelivery(id))
 }
 
 func deleteSingleDelivery(c echo.Context) (err error) {
-
+	id, err := strconv.Atoi(c.Param("id"))
+	return c.JSON(http.StatusOK, DeleteDelivery(id))
 }
 
 func main() {
@@ -112,8 +115,10 @@ func main() {
 
 	e := echo.New()
 	e.GET("/employees", listEmployees)
-	e.GET("/employees:id", singleEmployee)
+	e.GET("/employee:id", singleEmployee)
 	e.POST("/employees", createEmployee)
+	e.PATCH("/employee:id", patchSingleEmployee)
+	e.DELETE("/employee:id", deleteSingleEmployee)
 
 	e.GET("/deliveries", listDeliveries)
 	e.GET("/deliveries:id", singleDelivery)
