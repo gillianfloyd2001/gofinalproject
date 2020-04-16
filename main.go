@@ -21,10 +21,13 @@ func singleEmployee(c echo.Context) (err error) {
 func createEmployee(c echo.Context) (err error) {
 	employee := new(Employee)
 	if err = c.Bind(employee); err != nil {
-		return
+		panic(err)
 	}
-	createdEmployee := employee.CreateEmployee()
-	return c.JSON(http.StatusCreated, createdEmployee)
+	err = employee.CreateEmployee()
+	if err != nil {
+		panic(err)
+	}
+	return c.JSON(http.StatusCreated, employee)
 }
 
 func listDeliveries(c echo.Context) (err error) {
@@ -39,18 +42,17 @@ func singleDelivery(c echo.Context) (err error) {
 
 func createDelivery(c echo.Context) (err error) {
 	delivery := Delivery{}
-	if err = c.Bind(delivery); err != nil {
-		return
+	if err = c.Bind(&delivery); err != nil {
+		panic(err)
 	}
-	createdDelivery := delivery.CreateDelivery()
-	return c.JSON(http.StatusCreated, createdDelivery)
+	err = delivery.CreateDelivery()
+	if err != nil {
+		panic(err)
+	}
+	return c.JSON(http.StatusCreated, delivery)
 }
 
 func main() {
-	// http.HandleFunc("/clockin", createClockIn)
-	// http.HandleFunc("/employees", createListEmployees)
-	// http.HandleFunc("/clockout", createClockOut)
-
 	e := echo.New()
 	e.GET("/employees", listEmployees)
 	e.GET("/employee/:id", singleEmployee)
