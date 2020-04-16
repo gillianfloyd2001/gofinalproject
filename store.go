@@ -38,7 +38,10 @@ func Employees() (employees []Employee) {
 // GetEmployee will get an employee out by id.
 func GetEmployee(id int) (employee Employee, err error) {
 	employee = Employee{}
-	err = db.QueryRow("SELECT * from employees where id = $1", id).Scan(&employee.Name, &employee.Position)
+	err = db.QueryRow("SELECT * from employees where id = $1", id).Scan(&employee.Id, &employee.Name, &employee.Position)
+	if err != nil {
+		panic(err)
+	}
 	return
 }
 
@@ -73,7 +76,7 @@ func Deliveries() (deliveries []Delivery) {
 	}
 	for rows.Next() {
 		delivery := Delivery{}
-		err = rows.Scan(&delivery.Id, &delivery.Name, &delivery.PhoneNumber, &delivery.Address, &delivery.Tip)
+		err = rows.Scan(&delivery.Id, &delivery.Name, &delivery.Address, &delivery.Tip)
 		if err != nil {
 			panic(err)
 		}
@@ -86,7 +89,10 @@ func Deliveries() (deliveries []Delivery) {
 // GetDelivery gets a delivery out by the id.
 func GetDelivery(id int) (deliveries Delivery, err error) {
 	deliveries = Delivery{}
-	err = db.QueryRow("SELECT * FROM deliveries WHERE id = $1", id).Scan(&deliveries.Name, &deliveries.PhoneNumber, &deliveries.Address, &deliveries.Tip)
+	err = db.QueryRow("SELECT * FROM deliveries WHERE id = $1", id).Scan(&deliveries.Id, &deliveries.Name, &deliveries.Address, &deliveries.Tip)
+	if err != nil {
+		panic(err)
+	}
 	return
 }
 
@@ -97,15 +103,15 @@ func (delivery *Delivery) CreateDelivery() (err error) {
 	// return early if the addres is length is less than 0.
 	// In this case, we are assuming the non-0 id means it has been
 	// created because PostgreSQL SERIAL starts at 1
-	if len(delivery.Address) > 0 {
+	if len(delivery.Address) == 0 {
 		panic(err)
 	}
-	createDeliveryStatement, err := db.Prepare("INSERT INTO deliveries (name, phoneNumber, address, tip) VALUES ($2, $3, $4, $5) RETURNING id")
+	createDeliveryStatement, err := db.Prepare("INSERT INTO deliveries (name, address, tip) VALUES ($1, $2, $3) RETURNING id")
 	if err != nil {
 		panic(err)
 	}
 	defer createDeliveryStatement.Close()
-	err = createDeliveryStatement.QueryRow(delivery.Name, delivery.PhoneNumber, delivery.Address, delivery.Tip).Scan(delivery.Id)
+	err = createDeliveryStatement.QueryRow(delivery.Name, delivery.Address, delivery.Tip).Scan(&delivery.Id)
 	if err != nil {
 		panic(err)
 	}
