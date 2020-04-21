@@ -10,7 +10,7 @@ type Employee struct {
 // This creates a Delivery
 type Delivery struct {
 	Id      uint   `json:"id"`
-	Name    string `json: "name"`
+	Name    string `json:"name"`
 	Address string `json:"address"`
 	Tip     bool   `json:"tip"`
 }
