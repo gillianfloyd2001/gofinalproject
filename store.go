@@ -38,7 +38,7 @@ func Employees() (employees []Employee) {
 // GetEmployee will get an employee out by id.
 func GetEmployee(id int) (employee Employee, err error) {
 	employee = Employee{}
-	err = db.QueryRow("SELECT * from employees where id = $1", id).Scan(&employee.Id, &employee.Name, &employee.Position)
+	err = db.QueryRow("SELECT id, name, position from employees where id = $1", id).Scan(&employee.Id, &employee.Name, &employee.Position)
 	if err != nil {
 		panic(err)
 	}
@@ -70,7 +70,7 @@ func (employee *Employee) CreateEmployee() (err error) {
 
 // Deliveries gets all the deliveries at that was created.
 func Deliveries() (deliveries []Delivery) {
-	rows, err := db.Query("SELECT * FROM deliveries")
+	rows, err := db.Query("SELECT id, name, address, tip FROM deliveries")
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +89,7 @@ func Deliveries() (deliveries []Delivery) {
 // GetDelivery gets a delivery out by the id.
 func GetDelivery(id int) (deliveries Delivery, err error) {
 	deliveries = Delivery{}
-	err = db.QueryRow("SELECT * FROM deliveries WHERE id = $1", id).Scan(&deliveries.Id, &deliveries.Name, &deliveries.Address, &deliveries.Tip)
+	err = db.QueryRow("SELECT id, name, address, tip FROM deliveries WHERE id = $1", id).Scan(&deliveries.Id, &deliveries.Name, &deliveries.Address, &deliveries.Tip)
 	if err != nil {
 		panic(err)
 	}
